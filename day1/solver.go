@@ -15,7 +15,7 @@ func (s Solver) Solve() {
 }
 
 func calculateMostCalories() {
-	elfCalories := readElfCaloriesFromInputFile()
+	elfCalories := readElfCaloriesFromFile()
 	consolidatedElfCalories := consolidateCalories(elfCalories)
 
 	maxCalories := getMaxValue(consolidatedElfCalories)
@@ -24,7 +24,7 @@ func calculateMostCalories() {
 }
 
 func calculateTopThreeCalories() {
-	elfCalories := readElfCaloriesFromInputFile()
+	elfCalories := readElfCaloriesFromFile()
 	consolidatedElfCalories := consolidateCalories(elfCalories)
 
 	sort.Ints(consolidatedElfCalories) // orders in ascending order

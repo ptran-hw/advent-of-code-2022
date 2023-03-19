@@ -11,7 +11,7 @@ import (
 
 const inputFile = "./day1/input.txt"
 
-func readElfCaloriesFromInputFile() [][]int {
+func readElfCaloriesFromFile() [][]int {
 	file, err := os.Open(inputFile)
 	if err != nil {
 		panic(err)

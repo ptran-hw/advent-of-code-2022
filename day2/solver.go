@@ -32,7 +32,7 @@ func (s Solver) Solve() {
 }
 
 func calculateTotalScoreWithHandSign() {
-	matches := readMatchesFromFileInput()
+	matches := readMatchesFromFile()
 
 	totalScore := 0
 	for _, match := range matches {
@@ -90,7 +90,7 @@ func isWinningHand(handA, handB string) bool {
 }
 
 func calculateTotalScoreWithMatchOutcome() {
-	matches := readMatchesFromFileInput()
+	matches := readMatchesFromFile()
 
 	totalScore := 0
 	for _, match := range matches {

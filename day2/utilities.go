@@ -8,7 +8,7 @@ import (
 
 const inputFile = "./day2/input.txt"
 
-func readMatchesFromFileInput() [][]string {
+func readMatchesFromFile() [][]string {
 	const delimiter = " "
 
 	file, err := os.Open(inputFile)
