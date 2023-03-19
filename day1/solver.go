@@ -9,22 +9,22 @@ type Solver struct {
 }
 
 // defined on Solver to use fields and expose to client code
-func (d Solver) Solve() {
-	solveMostCalories()
-	solveTopThreeCalories()
+func (s Solver) Solve() {
+	calculateMostCalories()
+	calculateTopThreeCalories()
 }
 
-func solveMostCalories() {
-	elfCalories := ReadElfCaloriesFromInputFile()
+func calculateMostCalories() {
+	elfCalories := readElfCaloriesFromInputFile()
 	consolidatedElfCalories := consolidateCalories(elfCalories)
 
-	maxCalories := GetMaxValue(consolidatedElfCalories)
+	maxCalories := getMaxValue(consolidatedElfCalories)
 
 	fmt.Println("Elf with most food calories has:", maxCalories)
 }
 
-func solveTopThreeCalories() {
-	elfCalories := ReadElfCaloriesFromInputFile()
+func calculateTopThreeCalories() {
+	elfCalories := readElfCaloriesFromInputFile()
 	consolidatedElfCalories := consolidateCalories(elfCalories)
 
 	sort.Ints(consolidatedElfCalories) // orders in ascending order

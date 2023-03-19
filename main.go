@@ -1,4 +1,4 @@
-\package main
+package main
 
 import (
 	"fmt"
@@ -9,10 +9,8 @@ import (
 )
 
 var solvers = map[string]Solver{
-	"1":   day1.Solver{},
-	"2":   day2.Solver{},
-	"2.1": day2.Solver{},
-	"2.2": day2.SequelSolver{},
+	"1": day1.Solver{},
+	"2": day2.Solver{},
 }
 
 type Solver interface {
@@ -21,7 +19,6 @@ type Solver interface {
 
 func main() {
 	arguments := os.Args[1:]
-	arguments = []string{"2.2"}
 
 	if len(arguments) != 1 {
 		panic(fmt.Errorf("incorrect number of arguments used"))
@@ -30,7 +27,7 @@ func main() {
 	problemNumber := arguments[0]
 	solver := solvers[problemNumber]
 	if solver == nil {
-		panic(fmt.Errorf("unable to find day%s solver", problemNumber))
+		panic(fmt.Errorf("unable to find day %s solver", problemNumber))
 	}
 
 	solver.Solve()

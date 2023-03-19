@@ -1,36 +1,47 @@
 package day2
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-
 	"github.com/agrison/go-commons-lang/stringUtils"
 )
-
-type Solver struct {
-}
 
 const rockSymbols = "AX"
 const paperSymbols = "BY"
 const scissorSymbols = "CZ"
 
+const loseSymbol = "X"
+const drawSymbol = "Y"
+const winSymbol = "Z"
+
+// there are no enums in go, so we use constant strings
+// there's not much logic to encapsulate in a struct, so keeping as string
 const rockHand = "ROCK"
 const paperHand = "PAPER"
 const scissorHand = "SCISSOR"
 
+const loseOutcome = "LOSE"
+const drawOutcome = "OUTCOME"
+const winOutcome = "WIN"
+
+type Solver struct {
+}
+
 func (s Solver) Solve() {
-	//input := getSampleInput()
-	input := readFileInput()
+	calculateTotalScoreWithHandSign()
+	calculateTotalScoreWithMatchOutcome()
+}
+
+func calculateTotalScoreWithHandSign() {
+	matches := readMatchesFromFileInput()
 
 	totalScore := 0
-	for _, pair := range input {
-		if len(pair) != 2 {
-			panic(fmt.Sprintf("input contains invalid match: %s", pair))
+	for _, match := range matches {
+		if len(match) != 2 {
+			panic(fmt.Sprintf("input contains invalid match: %s", match))
 		}
 
-		otherHand := mapToHand(pair[0])
-		ownHand := mapToHand(pair[1])
+		otherHand := parseHand(match[0])
+		ownHand := parseHand(match[1])
 
 		totalScore += calculateScore(ownHand, otherHand)
 	}
@@ -38,7 +49,7 @@ func (s Solver) Solve() {
 	fmt.Printf("The total score following the strategy guide is: %d\n", totalScore)
 }
 
-func mapToHand(char string) string {
+func parseHand(char string) string {
 	switch {
 	case stringUtils.ContainsAnyCharacter(rockSymbols, char):
 		return rockHand
@@ -46,9 +57,9 @@ func mapToHand(char string) string {
 		return paperHand
 	case stringUtils.ContainsAnyCharacter(scissorSymbols, char):
 		return scissorHand
-	default:
-		panic(fmt.Sprintf("input contains invalid hand symbol: %s", char))
 	}
+
+	panic(fmt.Sprintf("input contains invalid hand symbol: %s", char))
 }
 
 func calculateScore(ownHand, otherHand string) int {
@@ -78,38 +89,60 @@ func isWinningHand(handA, handB string) bool {
 		(handA == scissorHand && handB == paperHand)
 }
 
-func getSampleInput() [][]string {
-	return [][]string{
-		{"A", "Y"},
-		{"B", "X"},
-		{"C", "Z"},
+func calculateTotalScoreWithMatchOutcome() {
+	matches := readMatchesFromFileInput()
+
+	totalScore := 0
+	for _, match := range matches {
+		if len(match) != 2 {
+			panic(fmt.Sprintf("input contains invalid match: %s", match))
+		}
+
+		otherHand := parseHand(match[0])
+		outcome := parseOutcome(match[1])
+		ownHand := convertToHand(otherHand, outcome)
+
+		totalScore += calculateScore(ownHand, otherHand)
 	}
+
+	fmt.Printf("The total score following the strategy guide is: %d\n", totalScore)
 }
 
-func readFileInput() [][]string {
-	const inputFile = "/Users/ptran/Git/advent-of-code/day2/input.txt"
-	const delimiter = " "
-
-	file, err := os.Open(inputFile)
-	if err != nil {
-		panic(err)
+func parseOutcome(char string) string {
+	switch char {
+	case winSymbol:
+		return winOutcome
+	case drawSymbol:
+		return drawOutcome
+	case loseSymbol:
+		return loseOutcome
 	}
 
-	result := make([][]string, 0)
+	panic(fmt.Sprintf("input contains invalid outcome symbol: %s", char))
+}
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if len(line) != 3 {
-			panic("input file invalid format, line length not 3")
-		}
-
-		round := []string{
-			stringUtils.SubstringBefore(line, delimiter),
-			stringUtils.SubstringAfter(line, delimiter),
-		}
-		result = append(result, round)
+func convertToHand(otherHand, outcome string) string {
+	switch outcome {
+	case loseOutcome:
+		return getLosingHand(otherHand)
+	case drawOutcome:
+		return otherHand
+	case winOutcome:
+		return getLosingHand(getLosingHand(otherHand))
 	}
 
-	return result
+	panic(fmt.Sprintf("input contains invalid outcome: %s", outcome))
+}
+
+func getLosingHand(hand string) string {
+	switch hand {
+	case rockHand:
+		return scissorHand
+	case paperHand:
+		return rockHand
+	case scissorHand:
+		return paperHand
+	}
+
+	panic(fmt.Sprintf("input contains invalid hand: %s", hand))
 }
