@@ -5,8 +5,6 @@ import (
 	"sort"
 )
 
-const InputFile = "/Users/ptran/Git/advent-of-code/day1/input.txt"
-
 type Solver struct {
 }
 
@@ -16,24 +14,6 @@ func (d Solver) Solve() {
 	solveTopThreeCalories()
 }
 
-func solveTopThreeCalories() {
-	elfCalories := ReadElfCaloriesFromInputFile()
-	consolidatedElfCalories := consolidateCalories(elfCalories)
-
-	sort.Ints(consolidatedElfCalories)
-
-	totalCalories := 0
-
-	index := Max(0, len(consolidatedElfCalories)-3) // three elves with top calories
-
-	for index < len(consolidatedElfCalories) {
-		totalCalories += consolidatedElfCalories[index]
-		index++
-	}
-
-	fmt.Println("Top three elves has total calories:", totalCalories)
-}
-
 func solveMostCalories() {
 	elfCalories := ReadElfCaloriesFromInputFile()
 	consolidatedElfCalories := consolidateCalories(elfCalories)
@@ -41,6 +21,20 @@ func solveMostCalories() {
 	maxCalories := GetMaxValue(consolidatedElfCalories)
 
 	fmt.Println("Elf with most food calories has:", maxCalories)
+}
+
+func solveTopThreeCalories() {
+	elfCalories := ReadElfCaloriesFromInputFile()
+	consolidatedElfCalories := consolidateCalories(elfCalories)
+
+	sort.Ints(consolidatedElfCalories) // orders in ascending order
+
+	totalCalories := 0
+	for index := len(consolidatedElfCalories) - 1; index >= 0 && index >= len(consolidatedElfCalories)-3; index-- {
+		totalCalories += consolidatedElfCalories[index]
+	}
+
+	fmt.Println("Top three elves has total calories:", totalCalories)
 }
 
 func consolidateCalories(caloriesArr [][]int) []int {

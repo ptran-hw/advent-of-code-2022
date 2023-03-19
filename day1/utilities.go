@@ -9,6 +9,8 @@ import (
 	"github.com/agrison/go-commons-lang/stringUtils"
 )
 
+const InputFile = "./day1/input.txt"
+
 func ReadElfCaloriesFromInputFile() [][]int {
 	file, err := os.Open(InputFile)
 	if err != nil {
@@ -47,18 +49,12 @@ func GetSampleElfCalories() [][]int {
 }
 
 func GetMaxValue(values []int) int {
-	return GetMaxValueWithUpperbound(values, math.MaxInt)
-}
-
-func GetMaxValueWithUpperbound(values []int, upperbound int) int {
-	maxValue := 0
-	for _, value := range values {
-		if value <= upperbound {
-			maxValue = Max(maxValue, value)
-		}
+	max := 0
+	for _, val := range values {
+		max = Max(max, val)
 	}
 
-	return maxValue
+	return max
 }
 
 func Max(valA, valB int) int {
