@@ -5,10 +5,10 @@ import (
 	"os"
 )
 
-const inputFileA = "./day3/inputA.txt"
+const inputFile = "./day3/input.txt"
 
 func readRucksacksFromFile() [][]string {
-	file, err := os.Open(inputFileA)
+	file, err := os.Open(inputFile)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +30,7 @@ func readRucksacksFromFile() [][]string {
 }
 
 func readTeamsFromFile() [][]string {
-	file, err := os.Open(inputFileA)
+	file, err := os.Open(inputFile)
 	if err != nil {
 		panic(err)
 	}

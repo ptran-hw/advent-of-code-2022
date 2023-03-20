@@ -5,8 +5,8 @@ import (
 	"github.com/agrison/go-commons-lang/stringUtils"
 )
 
-const lowercasePriorityOffset = 1
-const uppercasePriorityOffset = 27
+const lowercaseInitialPriority = 1
+const uppercaseInitialPriority = 27
 
 type Solver struct {
 }
@@ -24,27 +24,11 @@ func calculateTotalPriorityForRucksacks() {
 		compartmentA := rucksack[0]
 		compartmentB := rucksack[1]
 
-		errorItem := findErrorItem(compartmentA, compartmentB)
+		errorItem := findCommonItem([]string{compartmentA, compartmentB})
 		totalPriority += calculatePriority(errorItem)
 	}
 
 	fmt.Printf("total priority: %d\n", totalPriority)
-}
-
-func findErrorItem(compartmentA, compartmentB string) string {
-	itemMap := make(map[string]bool)
-
-	for _, runeValue := range compartmentA {
-		itemMap[string(runeValue)] = true
-	}
-
-	for _, runeValue := range compartmentB {
-		if _, found := itemMap[string(runeValue)]; found {
-			return string(runeValue)
-		}
-	}
-
-	panic(fmt.Sprintf("Unable to find an error item for: %s, and %s", compartmentA, compartmentB))
 }
 
 func calculateTotalPriorityForTeams() {
@@ -56,40 +40,49 @@ func calculateTotalPriorityForTeams() {
 		rucksackB := team[1]
 		rucksackC := team[2]
 
-		badgeItem := findBadgeItem(rucksackA, rucksackB, rucksackC)
-		fmt.Printf("rucksacks: %s, %s, %s and badgeItem: %s\n", rucksackA, rucksackB, rucksackC, badgeItem)
+		badgeItem := findCommonItem([]string{rucksackA, rucksackB, rucksackC})
 		totalPriority += calculatePriority(badgeItem)
 	}
 
 	fmt.Printf("total priority: %d\n", totalPriority)
 }
 
-func findBadgeItem(rucksackA, rucksackB, rucksackC string) string {
-	itemMap := make(map[string]int)
+func findCommonItem(itemGroups []string) string {
+	consecutiveCommonItemMap := make(map[string]int)
 
-	for _, runeValue := range rucksackA {
-		itemMap[string(runeValue)] = 1
-	}
+	// populate consecutiveCommonItemMap
+	for index, itemGroup := range itemGroups {
+		for _, runeValue := range itemGroup {
+			char := string(runeValue)
+			if index == 0 {
+				consecutiveCommonItemMap[char] = 0
+				continue
+			}
 
-	for _, runeValue := range rucksackB {
-		if _, found := itemMap[string(runeValue)]; found {
-			itemMap[string(runeValue)] = 2
+			if lastIndexFound, _ := consecutiveCommonItemMap[char]; lastIndexFound == index-1 {
+				consecutiveCommonItemMap[char] = index
+			}
 		}
 	}
 
-	for _, runeValue := range rucksackC {
-		if value, _ := itemMap[string(runeValue)]; value == 2 {
-			return string(runeValue)
+	// check for item count matches number of item groups
+	for _, runeValue := range itemGroups[0] {
+		char := string(runeValue)
+		if lastIndexFound, _ := consecutiveCommonItemMap[char]; lastIndexFound == len(itemGroups)-1 {
+			return char
 		}
 	}
 
-	panic(fmt.Sprintf("Unable to find an error item for: %s, %s, and %s", rucksackA, rucksackB, rucksackC))
+	panic(fmt.Sprintf("common item not found for: %v", itemGroups))
 }
 
 func calculatePriority(item string) int {
-	if stringUtils.IsAllLowerCase(item) {
-		return int(item[0]-"a"[0]) + lowercasePriorityOffset
-	} else {
-		return int(item[0]-"A"[0]) + uppercasePriorityOffset
+	switch {
+	case stringUtils.IsAllLowerCase(item):
+		return int(item[0]-"a"[0]) + lowercaseInitialPriority
+	case stringUtils.IsAllUpperCase(item):
+		return int(item[0]-"A"[0]) + uppercaseInitialPriority
+	default:
+		return 0
 	}
 }
