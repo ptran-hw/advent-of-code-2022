@@ -22,7 +22,7 @@ func readMatchesFromFile() [][]string {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if len(line) != 3 {
-			panic("input file invalid format, line length not 3")
+			panic("invalid input file format, line length not 3")
 		}
 
 		match := []string{
