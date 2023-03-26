@@ -5,44 +5,28 @@ import "fmt"
 type Solver struct {
 }
 
+type moveCargoWrapperFunc func(cargoState [][]string, count, cargoStartIndex, cargoEndIndex int)
+
 func (s Solver) Solve() {
 	rearrangeCargoCrateByCrate()
-	rearrangeCargoWithNewCrane()
+	rearrangeCargoWithSingleMove()
 }
 
 func rearrangeCargoCrateByCrate() {
-	//cargoState := getSampleInitialState()
-	cargoState := readInitialStateFromFile()
-	//instructions := getSampleInstructions()
-	instructions := readInstructionsFromFile()
-
-	for _, instruction := range instructions {
-		count := instruction[0]
-		cargoStartIndex := instruction[1] - 1
-		cargoEndIndex := instruction[2] - 1
-
+	rearrangeCargo(func(cargoState [][]string, count, cargoStartIndex, cargoEndIndex int) {
 		for cargoMoved := 0; cargoMoved < count; cargoMoved++ {
-			moveCargo(cargoState, cargoStartIndex, cargoEndIndex)
+			moveCargo(cargoState, cargoStartIndex, cargoEndIndex, 1)
 		}
-	}
-
-	printTopCrates(cargoState)
+	})
 }
 
-func moveCargo(cargos [][]string, startIndex, endIndex int) {
-	startCargo := cargos[startIndex]
-	endCargo := cargos[endIndex]
-
-	n := len(startCargo) - 1
-	crate := startCargo[n]
-	startCargo = startCargo[:n]
-	endCargo = append(endCargo, crate)
-
-	cargos[startIndex] = startCargo
-	cargos[endIndex] = endCargo
+func rearrangeCargoWithSingleMove() {
+	rearrangeCargo(func(cargoState [][]string, count, cargoStartIndex, cargoEndIndex int) {
+		moveCargo(cargoState, cargoStartIndex, cargoEndIndex, count)
+	})
 }
 
-func rearrangeCargoWithNewCrane() {
+func rearrangeCargo(wrapperFunc moveCargoWrapperFunc) {
 	//cargoState := getSampleInitialState()
 	cargoState := readInitialStateFromFile()
 	//instructions := getSampleInstructions()
@@ -53,13 +37,13 @@ func rearrangeCargoWithNewCrane() {
 		cargoStartIndex := instruction[1] - 1
 		cargoEndIndex := instruction[2] - 1
 
-		moveMultipleCargos(cargoState, cargoStartIndex, cargoEndIndex, count)
+		wrapperFunc(cargoState, count, cargoStartIndex, cargoEndIndex)
 	}
 
 	printTopCrates(cargoState)
 }
 
-func moveMultipleCargos(cargos [][]string, fromCargoIndex, toCargoIndex, crateCount int) {
+func moveCargo(cargos [][]string, fromCargoIndex, toCargoIndex, crateCount int) {
 	fromCargo := cargos[fromCargoIndex]
 	toCargo := cargos[toCargoIndex]
 
