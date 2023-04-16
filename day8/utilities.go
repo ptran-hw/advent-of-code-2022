@@ -19,12 +19,12 @@ func readTreeHeightGridFromFile() [][]int {
 	grid := make([][]int, 0)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		// assume: each tree height is a single digit
+		// each tree height is a single digit
 		line := strings.TrimSpace(scanner.Text())
 
 		row := make([]int, 0)
-		for index := 0; index < len(line); index++ {
-			height, err := strconv.Atoi(string(line[index]))
+		for _, char := range strings.Split(line, "") {
+			height, err := strconv.Atoi(char)
 			if err != nil {
 				panic(fmt.Sprintf("treeHeightData file contains a line with non-digit character: %s", line))
 			}

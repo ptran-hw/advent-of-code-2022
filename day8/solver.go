@@ -1,34 +1,37 @@
 package day8
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Solver struct {
+	visiblePositions map[string]bool
 }
 
 func (s Solver) Solve() {
-	countVisibleTrees()
+	s.visiblePositions = make(map[string]bool, 0)
+	s.countVisibleTrees()
 	calculateMaxScenicScore()
 }
 
-func countVisibleTrees() {
+func (s Solver) countVisibleTrees() {
 	//treeHeights := getTreeHeightGrid()
 	treeHeights := readTreeHeightGridFromFile()
-	visibleTrees := makeVisibleTreeGrid(treeHeights)
 
-	for row := 0; row < len(treeHeights); row++ {
-		updateVisibleTreeGridByRow(treeHeights, visibleTrees, row)
+	for rowIndex := 0; rowIndex < len(treeHeights); rowIndex++ {
+		s.updateVisibleTreeGridByRow(treeHeights, rowIndex)
 	}
 
-	for col := 0; col < len(treeHeights[0]); col++ {
-		updateVisibleTreeGridByCol(treeHeights, visibleTrees, col)
+	for colIndex := 0; colIndex < len(treeHeights[0]); colIndex++ {
+		s.updateVisibleTreeGridByCol(treeHeights, colIndex)
 	}
 
-	fmt.Printf("Visible tree count: %d\n", countTotalVisibleTrees(visibleTrees))
+	fmt.Printf("Visible tree count: %d\n", s.countTotalVisibleTrees())
 }
 
 func calculateMaxScenicScore() {
-	//treeHeights := getTreeHeightGrid()
-	treeHeights := readTreeHeightGridFromFile()
+	treeHeights := getTreeHeightGrid()
+	//treeHeights := readTreeHeightGridFromFile()
 
 	directionIncrements := [][]int{
 		{1, 0},
@@ -80,75 +83,73 @@ func calculateScenicScore(treeHeights [][]int, row, col, rowIncrement, colIncrem
 	return score
 }
 
-func makeVisibleTreeGrid(grid [][]int) [][]bool {
-	visibleTrees := make([][]bool, len(grid))
-	for index, row := range grid {
-		visibleTrees[index] = make([]bool, len(row))
-	}
-
-	return visibleTrees
-}
-
-func updateVisibleTreeGridByRow(treeHeights [][]int, visibleTrees [][]bool, rowIndex int) {
+func (s Solver) updateVisibleTreeGridByRow(treeHeights [][]int, rowIndex int) {
 	row := treeHeights[rowIndex]
 
-	visibleTrees[rowIndex][0] = true
 	maxHeight := row[0]
-	for colIndex := 1; colIndex < len(row); colIndex++ {
+	for colIndex := 0; colIndex < len(row); colIndex++ {
+		if colIndex == 0 {
+			s.visiblePositions[convertToKey(rowIndex, colIndex)] = true
+			continue
+		}
+
 		height := row[colIndex]
 		if maxHeight < height {
-			visibleTrees[rowIndex][colIndex] = true
-
+			s.visiblePositions[convertToKey(rowIndex, colIndex)] = true
 			maxHeight = height
 		}
 	}
 
-	visibleTrees[rowIndex][len(row)-1] = true
 	maxHeightRev := row[len(row)-1]
 	for colIndex := len(row) - 1; colIndex > 0; colIndex-- {
+		if colIndex == len(row) - 1 {
+			s.visiblePositions[convertToKey(rowIndex, colIndex)] = true
+			continue
+		}
+
 		height := row[colIndex]
 		if maxHeightRev < height {
-			visibleTrees[rowIndex][colIndex] = true
-
+			s.visiblePositions[convertToKey(rowIndex, colIndex)] = true
 			maxHeightRev = height
 		}
 	}
 }
 
-func updateVisibleTreeGridByCol(treeHeights [][]int, visibleTrees [][]bool, colIndex int) {
-	visibleTrees[0][colIndex] = true
+func (s Solver) updateVisibleTreeGridByCol(treeHeights [][]int, colIndex int) {
 	maxHeight := treeHeights[0][colIndex]
-	for rowIndex := 1; rowIndex < len(treeHeights); rowIndex++ {
+	for rowIndex := 0; rowIndex < len(treeHeights); rowIndex++ {
+		if rowIndex == 0 {
+			s.visiblePositions[convertToKey(rowIndex, colIndex)] = true
+			continue
+		}
+
 		height := treeHeights[rowIndex][colIndex]
 		if maxHeight < height {
-			visibleTrees[rowIndex][colIndex] = true
-
+			s.visiblePositions[convertToKey(rowIndex, colIndex)] = true
 			maxHeight = height
 		}
 	}
 
-	visibleTrees[len(visibleTrees)-1][colIndex] = true
 	maxHeightRev := treeHeights[len(treeHeights)-1][colIndex]
 	for rowIndex := len(treeHeights) - 1; rowIndex > 0; rowIndex-- {
+		if rowIndex == len(treeHeights) - 1 {
+			s.visiblePositions[convertToKey(rowIndex, colIndex)] = true
+			continue
+		}
+
 		height := treeHeights[rowIndex][colIndex]
 		if maxHeightRev < height {
-			visibleTrees[rowIndex][colIndex] = true
-
+			s.visiblePositions[convertToKey(rowIndex, colIndex)] = true
 			maxHeightRev = height
 		}
 	}
 }
 
-func countTotalVisibleTrees(visibleTrees [][]bool) int {
-	total := 0
+func (s Solver) countTotalVisibleTrees() int {
+	return len(s.visiblePositions)
+}
 
-	for row := 0; row < len(visibleTrees); row++ {
-		for col := 0; col < len(visibleTrees[0]); col++ {
-			if visibleTrees[row][col] {
-				total++
-			}
-		}
-	}
-
-	return total
+func convertToKey(row, col int) string {
+	// provides unique key for map
+	return fmt.Sprintf("x%dy%d", row, col)
 }
