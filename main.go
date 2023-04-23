@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/ptran-hw/advent-of-code/day1"
 	"github.com/ptran-hw/advent-of-code/day2"
 	"github.com/ptran-hw/advent-of-code/day3"
 	"github.com/ptran-hw/advent-of-code/day4"
@@ -9,9 +10,8 @@ import (
 	"github.com/ptran-hw/advent-of-code/day6"
 	"github.com/ptran-hw/advent-of-code/day7"
 	"github.com/ptran-hw/advent-of-code/day8"
+	"github.com/ptran-hw/advent-of-code/day9"
 	"os"
-
-	"github.com/ptran-hw/advent-of-code/day1"
 )
 
 var solvers = map[string]Solver{
@@ -23,6 +23,7 @@ var solvers = map[string]Solver{
 	"6": day6.Solver{},
 	"7": day7.Solver{},
 	"8": day8.Solver{},
+	"9": day9.Solver{},
 }
 
 type Solver interface {
