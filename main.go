@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/ptran-hw/advent-of-code/day1"
+	"github.com/ptran-hw/advent-of-code/day10"
 	"github.com/ptran-hw/advent-of-code/day2"
 	"github.com/ptran-hw/advent-of-code/day3"
 	"github.com/ptran-hw/advent-of-code/day4"
@@ -14,6 +15,7 @@ import (
 	"os"
 )
 
+// use pointer to Solver for mutable instance
 var solvers = map[string]Solver{
 	"1": day1.Solver{},
 	"2": day2.Solver{},
@@ -24,6 +26,7 @@ var solvers = map[string]Solver{
 	"7": day7.Solver{},
 	"8": day8.Solver{},
 	"9": day9.Solver{},
+	"10": &day10.Solver{},
 }
 
 type Solver interface {
