@@ -42,11 +42,12 @@ func readMonkeysFromFile() []*Monkey {
 
 		worryLevels := getWorryLevels(scanner)
 		operationFunc := getOperationFunc(scanner)
-		redirectTestFunc := getRedirectTestFunc(scanner)
+		redirectTestFunc, divisibleValue := getRedirectTestFunc(scanner)
 		newMonkey := &Monkey{
 			worryLevels:      worryLevels,
 			operationFunc:    operationFunc,
 			redirectTestFunc: redirectTestFunc,
+			redirectDivisibleValue: divisibleValue,
 		}
 
 		monkeys = append(monkeys, newMonkey)
@@ -85,7 +86,6 @@ func getOperationFunc(scanner *bufio.Scanner) func(int) int {
 		panic(fmt.Sprintf("Expected operation function line, but instead got: %s", line))
 	}
 
-	fmt.Println(line)
 	operator := operationFuncPattern.FindStringSubmatch(line)[1]
 	argument := operationFuncPattern.FindStringSubmatch(line)[2]
 	if argument == "old" {
@@ -135,7 +135,7 @@ func getOperatorFuncClosure(operator string, value int) func(int) int {
 	return funcs[operator]
 }
 
-func getRedirectTestFunc(scanner *bufio.Scanner) func(int) int {
+func getRedirectTestFunc(scanner *bufio.Scanner) (func(int) int, int) {
 	divisibleValue := getRedirectTestDivisibleValue(scanner)
 	truePathMonkey := getRedirectTestTruePathMonkey(scanner)
 	falsePathMonkey := getRedirectTestFalsePathMonkey(scanner)
@@ -146,7 +146,7 @@ func getRedirectTestFunc(scanner *bufio.Scanner) func(int) int {
 		} else {
 			return falsePathMonkey
 		}
-	}
+	}, divisibleValue
 }
 
 func getRedirectTestDivisibleValue(scanner *bufio.Scanner) int {
@@ -214,6 +214,7 @@ func getSampleMonkeys() []*Monkey {
 					return 3
 				}
 			},
+			redirectDivisibleValue: 23,
 		},
 		{
 			worryLevels: []int{54, 65, 75, 74},
@@ -227,6 +228,7 @@ func getSampleMonkeys() []*Monkey {
 					return 0
 				}
 			},
+			redirectDivisibleValue: 19,
 		},
 		{
 			worryLevels: []int{79, 60, 97},
@@ -240,6 +242,7 @@ func getSampleMonkeys() []*Monkey {
 					return 3
 				}
 			},
+			redirectDivisibleValue: 13,
 		},
 		{
 			worryLevels: []int{74},
@@ -253,6 +256,7 @@ func getSampleMonkeys() []*Monkey {
 					return 1
 				}
 			},
+			redirectDivisibleValue: 17,
 		},
 	}
 }
