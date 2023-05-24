@@ -6,6 +6,7 @@ import (
 	"github.com/ptran-hw/advent-of-code/day10"
 	"github.com/ptran-hw/advent-of-code/day11"
 	"github.com/ptran-hw/advent-of-code/day12"
+	"github.com/ptran-hw/advent-of-code/day13"
 	"github.com/ptran-hw/advent-of-code/day2"
 	"github.com/ptran-hw/advent-of-code/day3"
 	"github.com/ptran-hw/advent-of-code/day4"
@@ -31,6 +32,7 @@ var solvers = map[string]Solver{
 	"10": &day10.Solver{},
 	"11": &day11.Solver{},
 	"12": day12.Solver{},
+	"13": day13.Solver{},
 }
 
 type Solver interface {
