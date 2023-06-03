@@ -24,7 +24,21 @@ func (s Solver) Solve() {
 
 func solveMaximumSandComeToRest(rockStructures [][]Coordinate) {
 	coordinates := getAllRockStructureCoordinates(rockStructures)
+	sandCounter := solveMaximumSandComeToRestHelper(coordinates)
+	fmt.Printf("the maximum amount of sand added: %d\n", sandCounter)
+}
 
+func solveMaximumSandComeToRestWithFloor(rockStructures [][]Coordinate) {
+	coordinates := getAllRockStructureCoordinates(rockStructures)
+
+	maxY := findMaxY(coordinates)
+	coordinates = appendFloorRockStructure(coordinates, maxY)
+	sandCounter := solveMaximumSandComeToRestHelper(coordinates)
+	fmt.Printf("[with floor] the maximum amount of sand added: %d\n", sandCounter)
+}
+
+
+func solveMaximumSandComeToRestHelper(coordinates []Coordinate) int {
 	maxY := findMaxY(coordinates)
 	grid := createGridMap(coordinates)
 
@@ -33,22 +47,7 @@ func solveMaximumSandComeToRest(rockStructures [][]Coordinate) {
 		sandCounter++
 	}
 
-	fmt.Printf("the maximum amount of sand added: %d\n", sandCounter)
-}
-
-func solveMaximumSandComeToRestWithFloor(rockStructures [][]Coordinate) {
-	coordinates := getAllRockStructureCoordinates(rockStructures)
-
-	maxY := findMaxY(coordinates)
-	floorY := maxY + 2
-	grid := createGridMap(coordinates)
-
-	sandCounter := 0
-	for addSandWithFloor(grid, floorY) {
-		sandCounter++
-	}
-
-	fmt.Printf("[with floor] the maximum amount of sand added: %d\n", sandCounter)
+	return sandCounter
 }
 
 func getAllRockStructureCoordinates(rockStructures [][]Coordinate) []Coordinate {
@@ -60,7 +59,7 @@ func getAllRockStructureCoordinates(rockStructures [][]Coordinate) []Coordinate 
 		}
 	}
 
-	// coordinates between start and end coordinates
+	// add coordinates between start and end coordinates
 	for _, rockStructure := range rockStructures {
 		currCoordinate := rockStructure[0]
 
@@ -110,6 +109,23 @@ func getAllRockStructureCoordinates(rockStructures [][]Coordinate) []Coordinate 
 	return coordinates
 }
 
+func appendFloorRockStructure(coordinates []Coordinate, maxY int) []Coordinate {
+	const floorOffset = 2
+	const indexOffset = 1
+
+	floorY := maxY + floorOffset
+
+	// Originally mistaken for equilateral triangle (all 3 sides equal length), but actually is: width = height * 2 - 1
+	floorWidth := (floorY + indexOffset) * 2 - 1
+
+	widthOffset := floorWidth / 2
+	for x := sandEntryCoordinate.x - widthOffset; x <= sandEntryCoordinate.x + widthOffset; x++ {
+		coordinates = append(coordinates, Coordinate{x: x, y: floorY})
+	}
+
+	return coordinates
+}
+
 func findMaxY(coordinates []Coordinate) int {
 	maxValue := 0
 	for _, coordinate := range coordinates {
@@ -141,7 +157,7 @@ func addSand(grid map[string]bool, maxY int) bool {
 }
 
 func addSandHelper(x, y int, grid map[string]bool, maxY int) bool {
-	if y >= maxY {
+	if y >= maxY || grid[getKey(x, y)] {
 		return false
 	}
 
@@ -152,33 +168,6 @@ func addSandHelper(x, y int, grid map[string]bool, maxY int) bool {
 		return addSandHelper(x-1, y+1, grid, maxY)
 	case !grid[getKey(x+1, y+1)]:
 		return addSandHelper(x+1, y+1, grid, maxY)
-	default:
-		grid[getKey(x, y)] = true
-		return true
-	}
-}
-
-func addSandWithFloor(grid map[string]bool, floorY int) bool {
-	return addSandWithFloorHelper(sandEntryCoordinate.x, sandEntryCoordinate.y, grid, floorY)
-}
-
-func addSandWithFloorHelper(x, y int, grid map[string]bool, floorY int) bool {
-	// changed base case
-	if grid[getKey(x, y)] {
-		return false
-	}
-
-	switch {
-	// handle scenario with Floor
-	case y + 1 == floorY:
-		grid[getKey(x, y)] = true
-		return true
-	case !grid[getKey(x, y+1)]:
-		return addSandWithFloorHelper(x, y+1, grid, floorY)
-	case !grid[getKey(x-1, y+1)]:
-		return addSandWithFloorHelper(x-1, y+1, grid, floorY)
-	case !grid[getKey(x+1, y+1)]:
-		return addSandWithFloorHelper(x+1, y+1, grid, floorY)
 	default:
 		grid[getKey(x, y)] = true
 		return true
