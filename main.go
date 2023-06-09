@@ -8,6 +8,7 @@ import (
 	"github.com/ptran-hw/advent-of-code/day12"
 	"github.com/ptran-hw/advent-of-code/day13"
 	"github.com/ptran-hw/advent-of-code/day14"
+	"github.com/ptran-hw/advent-of-code/day15"
 	"github.com/ptran-hw/advent-of-code/day2"
 	"github.com/ptran-hw/advent-of-code/day3"
 	"github.com/ptran-hw/advent-of-code/day4"
@@ -17,6 +18,7 @@ import (
 	"github.com/ptran-hw/advent-of-code/day8"
 	"github.com/ptran-hw/advent-of-code/day9"
 	"os"
+	"time"
 )
 
 // use pointer to Solver for mutable instance
@@ -35,6 +37,7 @@ var solvers = map[string]Solver{
 	"12": day12.Solver{},
 	"13": day13.Solver{},
 	"14": day14.Solver{},
+	"15": day15.Solver{},
 }
 
 type Solver interface {
@@ -54,5 +57,7 @@ func main() {
 		panic(fmt.Errorf("unable to find day %s solver", problemNumber))
 	}
 
+	start := time.Now()
+	defer func() {fmt.Printf("time elapsed: %v\n", time.Now().Sub(start))}()
 	solver.Solve()
 }
