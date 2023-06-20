@@ -90,3 +90,47 @@ func TestParseJsonObject(t *testing.T) {
 		})
 	}
 }
+
+func TestParseJsonPrimitive(t *testing.T) {
+	testcases := []struct {
+		name string
+		input string
+		expectedOutput *JsonPrimitive
+		expectingError bool
+	} {
+		{
+			"int value",
+			"100",
+			func() *JsonPrimitive {
+				intValue := 100
+				return &JsonPrimitive{intValue: &intValue}
+			}(),
+			false,
+		},
+		{
+			"string value",
+			"\"test\"",
+			func() *JsonPrimitive {
+				stringValue := "test"
+				return &JsonPrimitive{stringValue: &stringValue}
+			}(),
+			false,
+		},
+		{
+			"invalid value",
+			"test",
+			nil,
+			true,
+		},
+	}
+
+	for _, testcase := range testcases {
+		t.Run(testcase.name, func(t *testing.T) {
+			output, err := parseJsonPrimitive(testcase.input)
+			assert.Equal(t, testcase.expectedOutput, output)
+			if testcase.expectingError {
+				assert.NotNil(t, err)
+			}
+		})
+	}
+}
