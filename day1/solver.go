@@ -14,6 +14,10 @@ func (s Solver) Solve() {
 	calculateTopThreeCalories()
 }
 
+/*
+Given [][]int elfCalories, where elfCalories[i] is a list of calories for elf i
+Find the elf with the maximum total calories and return the maximum total calories value
+*/
 func calculateMostCalories() {
 	elfCalories := readElfCaloriesFromFile()
 	consolidatedElfCalories := consolidateCalories(elfCalories)
@@ -23,6 +27,10 @@ func calculateMostCalories() {
 	fmt.Println("Elf with most food calories has:", maxCalories)
 }
 
+/*
+Given [][]int elfCalories, where elfCalories[i] is a list of calories for elf i
+Find the top 3 elves in terms of maximum total calories and return the sum of their total calories values
+*/
 func calculateTopThreeCalories() {
 	elfCalories := readElfCaloriesFromFile()
 	consolidatedElfCalories := consolidateCalories(elfCalories)

@@ -16,6 +16,10 @@ func (s Solver) Solve() {
 	calculateTotalPriorityForTeams()
 }
 
+/*
+Given [][]string rucksacks, where rucksacks[i] is pair of compartments
+Find the common item in each compartment pair, and sum the priority score
+*/
 func calculateTotalPriorityForRucksacks() {
 	rucksacks := readRucksacksFromFile()
 
@@ -31,6 +35,10 @@ func calculateTotalPriorityForRucksacks() {
 	fmt.Printf("total priority: %d\n", totalPriority)
 }
 
+/*
+Given [][]string team, where teams[i] is tuple of rucksacks
+Find the common badge item in each rucksack tuple, and sum the priority score
+*/
 func calculateTotalPriorityForTeams() {
 	teams := readTeamsFromFile()
 

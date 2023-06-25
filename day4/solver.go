@@ -5,45 +5,61 @@ import "fmt"
 type Solver struct {
 }
 
-type conditionFunc func(assignmentA, assignmentB []int) bool
-
-func (s Solver) Solve() {
-	countFullOverlappingAssignments()
-	countOverlappingAssignments()
+type Assignment struct {
+	start int
+	end   int
 }
 
-func countAssignments(conditionFunc conditionFunc) {
-	//assignments := getSampleAssignments()
-	assignments := readAssignmentsFromFile()
+type conditionFunc func(assignmentA, assignmentB Assignment) bool
 
+func (s Solver) Solve() {
+	//assignmentPairs := getSampleAssignments()
+	assignmentPairs := readAssignmentsFromFile()
+
+	countFullOverlappingAssignments(assignmentPairs)
+	countOverlappingAssignments(assignmentPairs)
+}
+
+func getFilteredAssignmentPairsCount(assignmentPairs [][]Assignment, conditionFunc conditionFunc) {
 	count := 0
 
-	for index := 0; index < len(assignments)-1; index += 2 {
-		currAssignment := assignments[index]
-		nextAssignment := assignments[index+1]
+	for index := 0; index < len(assignmentPairs); index++ {
+		pair := assignmentPairs[index]
+		assignmentA := pair[0]
+		assignmentB := pair[1]
 
-		if conditionFunc(currAssignment, nextAssignment) {
+		if conditionFunc(assignmentA, assignmentB) {
 			count++
 		}
 	}
 
-	fmt.Printf("full overlapping section assignments: %d\n", count)
+	fmt.Printf("full overlapping section assignment pairs: %d\n", count)
 }
 
-func countFullOverlappingAssignments() {
-	countAssignments(containsFullOverlap)
+/*
+Given [][]Assignment assignmentPairs,
+where assignmentPairs[i] is a pair of assignments and assignments contains int start and end
+Count the number of assignment pairs where one range is fully contained in the other
+*/
+func countFullOverlappingAssignments(assignmentPairs [][]Assignment) {
+	getFilteredAssignmentPairsCount(assignmentPairs, containsFullOverlap)
 }
 
-func containsFullOverlap(assignmentA, assignmentB []int) bool {
-	return (assignmentA[0] <= assignmentB[0] && assignmentA[1] >= assignmentB[1]) ||
-		(assignmentB[0] <= assignmentA[0] && assignmentB[1] >= assignmentA[1])
+func containsFullOverlap(assignmentA, assignmentB Assignment) bool {
+	return (assignmentA.start <= assignmentB.start && assignmentA.end >= assignmentB.end) ||
+		(assignmentB.start <= assignmentA.start && assignmentB.end >= assignmentA.end)
 }
 
-func countOverlappingAssignments() {
-	countAssignments(containsOverlap)
+/*
+Given [][]Assignment assignmentPairs,
+where assignmentPairs[i] is a pair of assignments and assignments contains int start and end
+Count the number of assignment pairs that one range is overlapping with the other
+*/
+func countOverlappingAssignments(assignmentPairs [][]Assignment) {
+	getFilteredAssignmentPairsCount(assignmentPairs, containsOverlap)
 }
 
-func containsOverlap(assignmentA, assignmentsB []int) bool {
-	return (assignmentA[0] <= assignmentsB[0] && assignmentA[1] >= assignmentsB[0]) ||
-		(assignmentsB[0] <= assignmentA[0] && assignmentsB[1] >= assignmentA[0])
+func containsOverlap(assignmentA, assignmentsB Assignment) bool {
+	return (assignmentA.start <= assignmentsB.start && assignmentA.end >= assignmentsB.start) ||
+		(assignmentsB.start <= assignmentA.start && assignmentsB.end >= assignmentA.start)
 }

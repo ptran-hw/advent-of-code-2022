@@ -31,6 +31,10 @@ func (s Solver) Solve() {
 	calculateTotalScoreWithMatchOutcome()
 }
 
+/*
+Given [][]string matches, where matches[i] is pair of values: opponent hand, my hand
+Calculate the total score
+*/
 func calculateTotalScoreWithHandSign() {
 	matches := readMatchesFromFile()
 
@@ -89,6 +93,10 @@ func isWinningHand(handA, handB string) bool {
 		(handA == scissorHand && handB == paperHand)
 }
 
+/*
+Given [][]string matches, where matches[i] is pair of values: opponent hand, match outcome
+Calculate the total score
+*/
 func calculateTotalScoreWithMatchOutcome() {
 	matches := readMatchesFromFile()
 

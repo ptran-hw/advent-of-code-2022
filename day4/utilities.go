@@ -10,13 +10,13 @@ import (
 
 const inputFile = "./day4/input.txt"
 
-func readAssignmentsFromFile() [][]int {
+func readAssignmentsFromFile() [][]Assignment {
 	file, err := os.Open(inputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	result := make([][]int, 0)
+	result := make([][]Assignment, 0)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -27,13 +27,13 @@ func readAssignmentsFromFile() [][]int {
 
 		assignmentA := parseAssignment(pair[0])
 		assignmentB := parseAssignment(pair[1])
-		result = append(result, assignmentA, assignmentB)
+		result = append(result, []Assignment{assignmentA, assignmentB})
 	}
 
 	return result
 }
 
-func parseAssignment(entry string) []int {
+func parseAssignment(entry string) Assignment {
 	pair := strings.Split(entry, "-")
 	if len(pair) != 2 {
 		panic("invalid input file format, assignment must have format: {A}-{B}")
@@ -49,22 +49,34 @@ func parseAssignment(entry string) []int {
 		panic(fmt.Sprintf("unable to read section number: %s", pair[1]))
 	}
 
-	return []int{start, end}
+	return Assignment{start: start, end: end}
 }
 
-func getSampleAssignments() [][]int {
-	return [][]int{
-		{2, 4},
-		{6, 8},
-		{2, 3},
-		{4, 5},
-		{5, 7},
-		{7, 9},
-		{2, 8},
-		{3, 7},
-		{6, 6},
-		{4, 6},
-		{2, 6},
-		{4, 8},
+func getSampleAssignments() [][]Assignment {
+	return [][]Assignment{
+		{
+			{start: 2, end: 4},
+			{start: 6, end: 8},
+		},
+		{
+			{start: 2, end: 3},
+			{start: 4, end: 5},
+		},
+		{
+			{start: 5, end: 7},
+			{start: 7, end: 9},
+		},
+		{
+			{start: 2, end: 8},
+			{start: 3, end: 7},
+		},
+		{
+			{start: 6, end: 6},
+			{start: 4, end: 6},
+		},
+		{
+			{start: 2, end: 6},
+			{start: 4, end: 8},
+		},
 	}
 }
