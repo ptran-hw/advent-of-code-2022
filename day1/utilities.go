@@ -2,37 +2,43 @@ package day1
 
 import (
 	"bufio"
-	"math"
+	"log"
 	"os"
 	"strconv"
 
 	"github.com/agrison/go-commons-lang/stringUtils"
 )
 
-const inputFile = "./day1/input.txt"
+const elfCaloriesFile = "./day1/elfCaloriesData.txt"
 
 func readElfCaloriesFromFile() [][]int {
-	file, err := os.Open(inputFile)
+	file, err := os.Open(elfCaloriesFile)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read input file: %v", err)
 	}
+	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 
-	var result [][]int
-	var buffer []int
+	result := make([][]int, 0)
+	buffer := make([]int, 0)
 	for scanner.Scan() {
-		if stringUtils.IsNotEmpty(scanner.Text()) {
-			value, err := strconv.Atoi(scanner.Text())
-			if err != nil {
-				panic(err)
-			}
-
-			buffer = append(buffer, value)
-		} else {
+		line := scanner.Text()
+		if stringUtils.IsEmpty(line) {
 			result = append(result, buffer)
 			buffer = make([]int, 0)
 		}
+
+		value, err := strconv.Atoi(line)
+		if err != nil {
+			log.Panicf("unable to parse %s into int: %v", line, err)
+		}
+
+		buffer = append(buffer, value)
+	}
+
+	if len(buffer) > 0 {
+		result = append(result, buffer)
 	}
 
 	return result
@@ -46,17 +52,4 @@ func getSampleElfCalories() [][]int {
 		{7000, 8000, 9000},
 		{10000},
 	}
-}
-
-func getMaxValue(values []int) int {
-	result := 0
-	for _, val := range values {
-		result = max(result, val)
-	}
-
-	return result
-}
-
-func max(valA, valB int) int {
-	return int(math.Max(float64(valA), float64(valB)))
 }

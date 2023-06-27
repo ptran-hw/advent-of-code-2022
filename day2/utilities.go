@@ -2,18 +2,18 @@ package day2
 
 import (
 	"bufio"
-	"github.com/agrison/go-commons-lang/stringUtils"
+	"log"
 	"os"
+	"strings"
 )
 
-const inputFile = "./day2/input.txt"
+const matchesFile = "./day2/matchesData.txt"
+const matchesDelimiter = " "
 
 func readMatchesFromFile() [][]string {
-	const delimiter = " "
-
-	file, err := os.Open(inputFile)
+	file, err := os.Open(matchesFile)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read input file: %v", err)
 	}
 
 	result := make([][]string, 0)
@@ -21,21 +21,18 @@ func readMatchesFromFile() [][]string {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if len(line) != 3 {
-			panic("invalid input file format, line length not 3")
+		match := strings.Split(line, matchesDelimiter)
+		if len(match) != 2 {
+			log.Panicf("invalid line format: %s", line)
 		}
 
-		match := []string{
-			stringUtils.SubstringBefore(line, delimiter),
-			stringUtils.SubstringAfter(line, delimiter),
-		}
 		result = append(result, match)
 	}
 
 	return result
 }
 
-func getSampleInput() [][]string {
+func getSampleMatches() [][]string {
 	return [][]string{
 		{"A", "Y"},
 		{"B", "X"},

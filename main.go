@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/ptran-hw/advent-of-code/day1"
 	"github.com/ptran-hw/advent-of-code/day10"
 	"github.com/ptran-hw/advent-of-code/day11"
@@ -19,28 +18,29 @@ import (
 	"github.com/ptran-hw/advent-of-code/day7"
 	"github.com/ptran-hw/advent-of-code/day8"
 	"github.com/ptran-hw/advent-of-code/day9"
+	"log"
 	"os"
 	"time"
 )
 
 // use pointer to Solver for mutable instance
 var solvers = map[string]Solver{
-	"1": day1.Solver{},
-	"2": day2.Solver{},
-	"3": day3.Solver{},
-	"4": day4.Solver{},
-	"5": day5.Solver{},
-	"6": day6.Solver{},
-	"7": day7.Solver{},
-	"8": day8.Solver{},
-	"9": day9.Solver{},
-	"10": &day10.Solver{},
-	"11": &day11.Solver{},
-	"12": day12.Solver{},
-	"13": day13.Solver{},
-	"14": day14.Solver{},
-	"15": day15.Solver{},
-	"16": day16.Solver{},
+	"1":    day1.Solver{},
+	"2":    day2.Solver{},
+	"3":    day3.Solver{},
+	"4":    day4.Solver{},
+	"5":    day5.Solver{},
+	"6":    day6.Solver{},
+	"7":    day7.Solver{},
+	"8":    day8.Solver{},
+	"9":    day9.Solver{},
+	"10":   &day10.Solver{},
+	"11":   &day11.Solver{},
+	"12":   day12.Solver{},
+	"13":   day13.Solver{},
+	"14":   day14.Solver{},
+	"15":   day15.Solver{},
+	"16":   &day16.Solver{},
 	"16.5": day16_5.Solver{},
 }
 
@@ -52,16 +52,17 @@ func main() {
 	arguments := os.Args[1:]
 
 	if len(arguments) != 1 {
-		panic(fmt.Errorf("incorrect number of arguments used"))
+		log.Panic("incorrect number of arguments used")
 	}
 
 	problemNumber := arguments[0]
 	solver := solvers[problemNumber]
 	if solver == nil {
-		panic(fmt.Errorf("unable to find day %s solver", problemNumber))
+		log.Panicf("unable to find day %s solver", problemNumber)
 	}
 
 	start := time.Now()
-	defer func() {fmt.Printf("time elapsed: %v\n", time.Now().Sub(start))}()
+	defer func() { log.Printf("time elapsed: %v\n", time.Now().Sub(start)) }()
+
 	solver.Solve()
 }

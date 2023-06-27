@@ -1,8 +1,8 @@
 package day2
 
 import (
-	"fmt"
 	"github.com/agrison/go-commons-lang/stringUtils"
+	"log"
 )
 
 const rockSymbols = "AX"
@@ -19,51 +19,48 @@ const rockHand = "ROCK"
 const paperHand = "PAPER"
 const scissorHand = "SCISSOR"
 
-const loseOutcome = "LOSE"
-const drawOutcome = "OUTCOME"
-const winOutcome = "WIN"
-
 type Solver struct {
 }
 
 func (s Solver) Solve() {
-	calculateTotalScoreWithHandSign()
-	calculateTotalScoreWithMatchOutcome()
+	//matches := getSampleMatches()
+	matches := readMatchesFromFile()
+
+	log.Printf("Using the hand guide, total score is: %d\n", calculateTotalScoreWithHandSign(matches))
+	log.Printf("Using the match outcome guide, total score is: %d\n",
+		calculateTotalScoreWithMatchOutcome(matches))
 }
 
 /*
-Given [][]string matches, where matches[i] is pair of values: opponent hand, my hand
+Given [][]string matches, where matches[i] is a pair of values: opponent hand, my hand
 Calculate the total score
 */
-func calculateTotalScoreWithHandSign() {
-	matches := readMatchesFromFile()
-
+func calculateTotalScoreWithHandSign(matches [][]string) int {
 	totalScore := 0
 	for _, match := range matches {
-		if len(match) != 2 {
-			panic(fmt.Sprintf("input contains invalid match: %s", match))
-		}
-
 		otherHand := parseHand(match[0])
 		ownHand := parseHand(match[1])
 
 		totalScore += calculateScore(ownHand, otherHand)
 	}
 
-	fmt.Printf("The total score following the strategy guide is: %d\n", totalScore)
+	return totalScore
 }
 
 func parseHand(char string) string {
+	var result string
 	switch {
 	case stringUtils.ContainsAnyCharacter(rockSymbols, char):
-		return rockHand
+		result = rockHand
 	case stringUtils.ContainsAnyCharacter(paperSymbols, char):
-		return paperHand
+		result = paperHand
 	case stringUtils.ContainsAnyCharacter(scissorSymbols, char):
-		return scissorHand
+		result = scissorHand
+	default:
+		log.Panicf("input contains invalid hand symbol: %s", char)
 	}
 
-	panic(fmt.Sprintf("input contains invalid hand symbol: %s", char))
+	return result
 }
 
 func calculateScore(ownHand, otherHand string) int {
@@ -94,63 +91,54 @@ func isWinningHand(handA, handB string) bool {
 }
 
 /*
-Given [][]string matches, where matches[i] is pair of values: opponent hand, match outcome
+Given [][]string matches, where matches[i] is a pair of values: opponent hand, match outcome
 Calculate the total score
 */
-func calculateTotalScoreWithMatchOutcome() {
-	matches := readMatchesFromFile()
-
+func calculateTotalScoreWithMatchOutcome(matches [][]string) int {
 	totalScore := 0
 	for _, match := range matches {
-		if len(match) != 2 {
-			panic(fmt.Sprintf("input contains invalid match: %s", match))
-		}
-
 		otherHand := parseHand(match[0])
+
 		outcome := parseOutcome(match[1])
-		ownHand := convertToHand(otherHand, outcome)
+		ownHand := rotateHand(otherHand, outcome)
 
 		totalScore += calculateScore(ownHand, otherHand)
 	}
 
-	fmt.Printf("The total score following the strategy guide is: %d\n", totalScore)
+	return totalScore
 }
 
-func parseOutcome(char string) string {
+func parseOutcome(char string) int {
+	var result int
 	switch char {
 	case winSymbol:
-		return winOutcome
+		result = 1
 	case drawSymbol:
-		return drawOutcome
+		result = 0
 	case loseSymbol:
-		return loseOutcome
+		result = -1
+	default:
+		log.Panicf("input contains invalid outcome symbol: %s", char)
 	}
 
-	panic(fmt.Sprintf("input contains invalid outcome symbol: %s", char))
+	return result
 }
 
-func convertToHand(otherHand, outcome string) string {
-	switch outcome {
-	case loseOutcome:
-		return getLosingHand(otherHand)
-	case drawOutcome:
-		return otherHand
-	case winOutcome:
-		return getLosingHand(getLosingHand(otherHand))
+// rock -> paper -> scissor
+func rotateHand(hand string, rotations int) string {
+	if rotations % 3 == 0 {
+		return hand
 	}
 
-	panic(fmt.Sprintf("input contains invalid outcome: %s", outcome))
-}
-
-func getLosingHand(hand string) string {
+	var nextHand string
 	switch hand {
 	case rockHand:
-		return scissorHand
+		nextHand = paperHand
 	case paperHand:
-		return rockHand
+		nextHand = scissorHand
 	case scissorHand:
-		return paperHand
+		nextHand = rockHand
 	}
 
-	panic(fmt.Sprintf("input contains invalid hand: %s", hand))
+	return rotateHand(nextHand, rotations - 1)
 }
