@@ -2,13 +2,14 @@ package day3
 
 import (
 	"bufio"
+	"log"
 	"os"
 )
 
-const inputFile = "./day3/input.txt"
+const rucksacksFile = "./day3/rucksacksData.txt"
 
 func readRucksacksFromFile() [][]string {
-	file, err := os.Open(inputFile)
+	file, err := os.Open(rucksacksFile)
 	if err != nil {
 		panic(err)
 	}
@@ -19,9 +20,10 @@ func readRucksacksFromFile() [][]string {
 	for scanner.Scan() {
 		line := scanner.Text()
 
+		midIndex := len(line)/2
 		compartments := []string{
-			line[0 : len(line)/2],
-			line[len(line)/2:],
+			line[0:midIndex],
+			line[midIndex:],
 		}
 		result = append(result, compartments)
 	}
@@ -30,9 +32,9 @@ func readRucksacksFromFile() [][]string {
 }
 
 func readTeamsFromFile() [][]string {
-	file, err := os.Open(inputFile)
+	file, err := os.Open(rucksacksFile)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read input file: %v", err)
 	}
 
 	result := make([][]string, 0)

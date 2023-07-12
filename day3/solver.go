@@ -3,6 +3,7 @@ package day3
 import (
 	"fmt"
 	"github.com/agrison/go-commons-lang/stringUtils"
+	"log"
 )
 
 const lowercaseInitialPriority = 1
@@ -12,47 +13,27 @@ type Solver struct {
 }
 
 func (s Solver) Solve() {
-	calculateTotalPriorityForRucksacks()
-	calculateTotalPriorityForTeams()
+	//rucksacks := getSampleRucksacks()
+	rucksacks := readRucksacksFromFile()
+	//teams := getSampleTeams()
+	teams := readTeamsFromFile()
+
+	log.Printf("total priority for rucksacks: %d\n",calculateTotalPriority(rucksacks))
+	log.Printf("total priority for teams: %d\n",calculateTotalPriority(teams))
 }
 
 /*
 Given [][]string rucksacks, where rucksacks[i] is pair of compartments
 Find the common item in each compartment pair, and sum the priority score
 */
-func calculateTotalPriorityForRucksacks() {
-	rucksacks := readRucksacksFromFile()
-
+func calculateTotalPriority(groups [][]string) int {
 	totalPriority := 0
-	for _, rucksack := range rucksacks {
-		compartmentA := rucksack[0]
-		compartmentB := rucksack[1]
-
-		errorItem := findCommonItem([]string{compartmentA, compartmentB})
+	for _, group := range groups {
+		errorItem := findCommonItem(group)
 		totalPriority += calculatePriority(errorItem)
 	}
 
-	fmt.Printf("total priority: %d\n", totalPriority)
-}
-
-/*
-Given [][]string team, where teams[i] is tuple of rucksacks
-Find the common badge item in each rucksack tuple, and sum the priority score
-*/
-func calculateTotalPriorityForTeams() {
-	teams := readTeamsFromFile()
-
-	totalPriority := 0
-	for _, team := range teams {
-		rucksackA := team[0]
-		rucksackB := team[1]
-		rucksackC := team[2]
-
-		badgeItem := findCommonItem([]string{rucksackA, rucksackB, rucksackC})
-		totalPriority += calculatePriority(badgeItem)
-	}
-
-	fmt.Printf("total priority: %d\n", totalPriority)
+	return totalPriority
 }
 
 func findCommonItem(itemGroups []string) string {

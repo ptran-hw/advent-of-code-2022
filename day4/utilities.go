@@ -3,17 +3,18 @@ package day4
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
-const inputFile = "./day4/input.txt"
+const assignmentsFile = "./day4/assignmentsData.txt"
 
 func readAssignmentsFromFile() [][]Assignment {
-	file, err := os.Open(inputFile)
+	file, err := os.Open(assignmentsFile)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read input file: %v", err)
 	}
 
 	result := make([][]Assignment, 0)
