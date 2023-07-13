@@ -1,12 +1,15 @@
 package day7
 
-import "fmt"
+import (
+	"log"
+)
 
-const directoryCandidateSizeLimit = 100000
-const fileObjectType = "file"
-const totalFileSystemSize = 70000000
-const updateRequiredSpace = 30000000
+const defaultCandidateSizeLimit = 100000
+const defaultFileSystemSize = 70000000
+const defaultUpdateSize = 30000000
 
+const dirType = "dir"
+const fileType = "file"
 type FileSystemObject struct {
 	name       string
 	objectType string
@@ -19,31 +22,32 @@ type Solver struct {
 }
 
 func (s Solver) Solve() {
-	analyzeDirectoryCandidates()
-	analyzeDirectoryCandidatesForFileSystemUpdate()
-}
-
-func analyzeDirectoryCandidates() {
 	//root := getSampleFileSystem()
 	root := readFileSystemFromFile()
 
 	updateDirectoriesSize(root)
-
-	fmt.Printf("Directories with size <= %d had a total size of %d\n", directoryCandidateSizeLimit, sumDirectoryCandidatesSize(root, directoryCandidateSizeLimit))
+	analyzeDirectoryCandidates(root, defaultCandidateSizeLimit)
+	analyzeDirectoryCandidatesForFileSystemUpdate(root, defaultFileSystemSize, defaultUpdateSize)
 }
 
-func analyzeDirectoryCandidatesForFileSystemUpdate() {
-	//root := getSampleFileSystem()
-	root := readFileSystemFromFile()
+/*
+Given *FileSystemObject root with
+*/
+func analyzeDirectoryCandidates(root *FileSystemObject, candidateSizeLimit int) {
+	totalSize := sumDirectoryCandidatesSize(root, candidateSizeLimit)
+	log.Printf("Directories with size <= %d had a total size of %d\n", candidateSizeLimit, totalSize)
+}
 
-	updateDirectoriesSize(root)
+/*
 
-	currentFreeSpace := totalFileSystemSize - root.size
-	additionalSpaceRequired := updateRequiredSpace - currentFreeSpace
-	fmt.Printf("In order to update file system, we need additional space: %d\n", additionalSpaceRequired)
+*/
+func analyzeDirectoryCandidatesForFileSystemUpdate(root *FileSystemObject, fileSystemSize int, updateSize int) {
+	currentFreeSpace := fileSystemSize - root.size
+	additionalSpaceRequired := updateSize - currentFreeSpace
+	log.Printf("In order to update file system, we need additional space: %d\n", additionalSpaceRequired)
 
 	directory := findSmallestDirectoryCandidate(root, additionalSpaceRequired)
-	fmt.Printf("The best directory to delete for file system update: %v\n", directory) // print statements does display object values
+	log.Printf("The best directory to delete: %s, which results in saving space: %d\n", directory.name, directory.size)
 }
 
 func updateDirectoriesSize(node *FileSystemObject) {
@@ -64,7 +68,7 @@ func updateDirectoriesSize(node *FileSystemObject) {
 }
 
 func sumDirectoryCandidatesSize(node *FileSystemObject, candidateSizeLimit int) int {
-	if node.objectType == fileObjectType {
+	if node.objectType == fileType {
 		return 0
 	}
 
@@ -81,7 +85,7 @@ func sumDirectoryCandidatesSize(node *FileSystemObject, candidateSizeLimit int) 
 }
 
 func findSmallestDirectoryCandidate(node *FileSystemObject, minSize int) *FileSystemObject {
-	if node.objectType == fileObjectType {
+	if node.objectType == fileType {
 		return nil
 	}
 

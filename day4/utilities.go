@@ -2,7 +2,6 @@ package day4
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -16,6 +15,7 @@ func readAssignmentsFromFile() [][]Assignment {
 	if err != nil {
 		log.Panicf("unable to read input file: %v", err)
 	}
+	defer file.Close()
 
 	result := make([][]Assignment, 0)
 	scanner := bufio.NewScanner(file)
@@ -23,7 +23,7 @@ func readAssignmentsFromFile() [][]Assignment {
 		line := scanner.Text()
 		pair := strings.Split(line, ",")
 		if len(pair) != 2 {
-			panic("invalid input file format, line must contain two assignments")
+			log.Panic("invalid input file format, line must contain two assignments")
 		}
 
 		assignmentA := parseAssignment(pair[0])
@@ -37,17 +37,17 @@ func readAssignmentsFromFile() [][]Assignment {
 func parseAssignment(entry string) Assignment {
 	pair := strings.Split(entry, "-")
 	if len(pair) != 2 {
-		panic("invalid input file format, assignment must have format: {A}-{B}")
+		log.Panic("invalid input file format, assignment must have format: {A}-{B}")
 	}
 
 	start, err := strconv.Atoi(pair[0])
 	if err != nil {
-		panic(fmt.Sprintf("unable to read section number: %s", pair[0]))
+		log.Panicf("unable to read section number: %s", pair[0])
 	}
 
 	end, err := strconv.Atoi(pair[1])
 	if err != nil {
-		panic(fmt.Sprintf("unable to read section number: %s", pair[1]))
+		log.Panicf("unable to read section number: %s", pair[1])
 	}
 
 	return Assignment{start: start, end: end}

@@ -11,8 +11,9 @@ const rucksacksFile = "./day3/rucksacksData.txt"
 func readRucksacksFromFile() [][]string {
 	file, err := os.Open(rucksacksFile)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read rucksacks file: %v", err)
 	}
+	defer file.Close()
 
 	result := make([][]string, 0)
 

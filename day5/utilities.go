@@ -17,6 +17,7 @@ func readInitialStateFromFile() [][]string {
 	if err != nil {
 		log.Panicf("unable to read initial state file: %v", err)
 	}
+	defer file.Close()
 
 	result := make([][]string, 0)
 	scanner := bufio.NewScanner(file)

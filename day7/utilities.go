@@ -2,7 +2,7 @@ package day7
 
 import (
 	"bufio"
-	"fmt"
+	"log"
 	"os"
 	"regexp"
 	"strconv"
@@ -10,7 +10,8 @@ import (
 
 const fileSystemInputFile = "./day7/fileSystemInput.txt"
 
-// assume input file has the following format:
+
+// input file has the following formats:
 // $ cd /
 // $ cd ..
 // $ cd <dir-name>
@@ -20,9 +21,11 @@ const fileSystemInputFile = "./day7/fileSystemInput.txt"
 func readFileSystemFromFile() *FileSystemObject {
 	file, err := os.Open(fileSystemInputFile)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read file system input: %v", err)
 	}
+	defer file.Close()
 
+	listDirectoryCommand := "$ ls"
 	changeDirPattern := regexp.MustCompile("\\$ cd (.+)")
 	fileSystemFilePattern := regexp.MustCompile("([0-9]+) (.+)")
 	fileSystemDirPattern := regexp.MustCompile("dir (.+)")
@@ -37,7 +40,7 @@ func readFileSystemFromFile() *FileSystemObject {
 	for scanner.Scan() {
 		line := scanner.Text()
 		switch {
-		case line == "$ ls":
+		case line == listDirectoryCommand:
 			continue
 		case changeDirPattern.MatchString(line):
 			path := changeDirPattern.FindStringSubmatch(line)[1]
@@ -47,10 +50,14 @@ func readFileSystemFromFile() *FileSystemObject {
 			case "..":
 				head = head.parent
 			default:
-				for _, child := range head.children {
+				for index, child := range head.children {
 					if child.name == path {
 						head = child
-						continue
+						break
+					}
+
+					if index == len(head.children) - 1 {
+						log.Panicf("unable to change directory with head: %s, target: %s", head.name, path)
 					}
 				}
 			}
@@ -58,7 +65,7 @@ func readFileSystemFromFile() *FileSystemObject {
 			dirName := fileSystemDirPattern.FindStringSubmatch(line)[1]
 			child := &FileSystemObject{
 				name:       dirName,
-				objectType: "dir",
+				objectType: dirType,
 				children:   make([]*FileSystemObject, 0),
 				parent:     head,
 			}
@@ -67,19 +74,19 @@ func readFileSystemFromFile() *FileSystemObject {
 			matches := fileSystemFilePattern.FindStringSubmatch(line)
 			fileSize, err := strconv.Atoi(matches[1])
 			if err != nil {
-				panic(err)
+				log.Panicf("unable to read filesize value: %v", err)
 			}
 
 			fileName := matches[2]
 			child := &FileSystemObject{
 				name:       fileName,
-				objectType: "file",
+				objectType: fileType,
 				size:       fileSize,
 				parent:     head,
 			}
 			head.children = append(head.children, child)
 		default:
-			panic(fmt.Sprintf("input line was not recognized: %s\n", line))
+			log.Panicf("input line was not recognized: %s", line)
 		}
 	}
 

@@ -15,6 +15,7 @@ func readMatchesFromFile() [][]string {
 	if err != nil {
 		log.Panicf("unable to read input file: %v", err)
 	}
+	defer file.Close()
 
 	result := make([][]string, 0)
 
