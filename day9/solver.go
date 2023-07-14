@@ -1,8 +1,11 @@
 package day9
 
 import (
-	"fmt"
+	"log"
 )
+
+const simpleRopeLength = 2
+const complexRopeLength = 10
 
 const leftMovement = "L"
 const rightMovement = "R"
@@ -20,44 +23,57 @@ type Position struct {
 }
 
 type Solver struct {
-	visitedTailPositions map[string]bool
 }
 
 func (s Solver) Solve() {
-	instructions := getSampleInstructions()
+	//instructions := getSampleInstructions()
 	//instructions := getLongDistanceSampleInstructions()
-	//instructions := readInstructionsFromFile()
+	instructions := readInstructionsFromFile()
 
-	s.solveSimpleRopeBridge(instructions)
-	s.solveComplexRopeBridge(instructions)
+	solveSimpleRopeBridge(instructions)
+	solveComplexRopeBridge(instructions)
 }
 
-func (s Solver) solveSimpleRopeBridge(instructions []Instruction) {
-	s.visitedTailPositions = make(map[string]bool)
-	s.simulateMovements(instructions, 2)
-	fmt.Printf("Simple rope bridge: number of visited positions: %d\n", countVisitedPositions(s.visitedTailPositions))
+/*
+Given instructions []Instruction,
+Count the number of positions the tail visits at least once
+
+The rope is length 2, and the tail knot will follow the head knot
+When the tail knot is not in the same row/col with the head knot (after updating it's position),
+then the tail know will move diagonally to keep up
+*/
+func solveSimpleRopeBridge(instructions []Instruction) {
+	visitedTailPositions := make(map[string]bool)
+	simulateMovements(instructions, simpleRopeLength, visitedTailPositions)
+	log.Printf("Simple rope bridge: number of visited positions: %d\n", countVisitedPositions(visitedTailPositions))
 }
 
-func (s Solver) solveComplexRopeBridge(instructions []Instruction) {
-	s.visitedTailPositions = make(map[string]bool)
-	s.simulateMovements(instructions, 10)
-	fmt.Printf("Complex rope bridge: number of visited positions: %d\n", countVisitedPositions(s.visitedTailPositions))
+/*
+Given instructions []Instruction,
+Count the number of positions the tail visits at least once
+
+The rope is length 10, and non-head knots follows the preceding knot using the same pattern as the simple scenario
+*/
+func solveComplexRopeBridge(instructions []Instruction) {
+	visitedTailPositions := make(map[string]bool)
+	simulateMovements(instructions, complexRopeLength, visitedTailPositions)
+	log.Printf("Complex rope bridge: number of visited positions: %d\n", countVisitedPositions(visitedTailPositions))
 }
 
-func (s Solver) simulateMovements(instructions []Instruction, knotCount int) {
+func simulateMovements(instructions []Instruction, knotCount int, visitedTailPositions map[string]bool) {
 	knots := make([]*Position, 0)
 	for count := 1; count <= knotCount; count++ {
 		position := &Position{x: 0, y: 0}
 		knots = append(knots, position)
 	}
 
-	s.addPosition(0, 0)
+	addPosition(0, 0, visitedTailPositions)
 	for _, instruction := range instructions {
-		s.processComplexInstruction(knots, instruction)
+		processInstruction(knots, instruction, visitedTailPositions)
 	}
 }
 
-func (s Solver) processComplexInstruction(knots []*Position, instruction Instruction) {
+func processInstruction(knots []*Position, instruction Instruction, visitedTailPositions map[string]bool) {
 	if instruction.distance == 0 {
 		return
 	}
@@ -75,11 +91,12 @@ func (s Solver) processComplexInstruction(knots []*Position, instruction Instruc
 
 		moveCloser(currKnot, prevKnot)
 		if index == len(knots) - 1 {
-			s.addPosition(currKnot.x, currKnot.y)
+			addPosition(currKnot.x, currKnot.y, visitedTailPositions)
 		}
 	}
 
-	s.processComplexInstruction(knots, Instruction{direction: instruction.direction, distance: instruction.distance - 1})
+	instruction.distance-- // pass by value results in a copy
+	processInstruction(knots, instruction, visitedTailPositions)
 }
 
 func isOverlappingOrAdjacent(nodeA, nodeB *Position) bool {
@@ -134,9 +151,8 @@ func moveCloser(currKnot, prevKnot *Position) {
 	}
 }
 
-func (s Solver) addPosition(x, y int) {
-	// provide a unique key
-	s.visitedTailPositions[fmt.Sprintf("x%dy%d", x, y)] = true
+func addPosition(x, y int, visitedTailPositions map[string]bool) {
+	visitedTailPositions[getKey(x, y)] = true
 }
 
 func countVisitedPositions(grid map[string]bool) int {

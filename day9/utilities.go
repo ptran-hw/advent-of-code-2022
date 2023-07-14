@@ -3,6 +3,7 @@ package day9
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -13,8 +14,9 @@ const instructionDataFile = "./day9/instructionData.txt"
 func readInstructionsFromFile() []Instruction {
 	file, err := os.Open(instructionDataFile)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read instructions file: %v", err)
 	}
+	defer file.Close()
 
 	instructions := make([]Instruction, 0)
 
@@ -24,13 +26,13 @@ func readInstructionsFromFile() []Instruction {
 
 		details := strings.Split(line, " ")
 		if len(details) != 2 {
-			panic(fmt.Sprintf("Instruction file contains incorrect formatted line: %s\n", line))
+			log.Panicf("unable to parse instruction, invalid format: %s", line)
 		}
 
 		direction := details[0]
 		distance, err := strconv.Atoi(details[1])
 		if err != nil {
-			panic(fmt.Sprintf("Instruction file contains incorrect formatted distance: %s\n", line))
+			log.Panicf("unable to parse distance value: %v", err)
 		}
 
 		instructions = append(instructions, Instruction{direction: direction, distance: distance})
@@ -63,4 +65,8 @@ func getLongDistanceSampleInstructions() []Instruction {
 		{direction: "L", distance: 25},
 		{direction: "U", distance: 20},
 	}
+}
+
+func getKey(x, y int) string {
+	return fmt.Sprintf("x%dy%d", x, y)
 }
