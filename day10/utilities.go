@@ -2,7 +2,7 @@ package day10
 
 import (
 	"bufio"
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -22,8 +22,9 @@ func readSampleInstructionsFromFile() []Instruction {
 func readInstructionsFromFileHelper(filePath string) []Instruction {
 	file, err := os.Open(filePath)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read instructions file:", err)
 	}
+	defer file.Close()
 
 	instructions := make([]Instruction, 0)
 
@@ -31,20 +32,20 @@ func readInstructionsFromFileHelper(filePath string) []Instruction {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if line == "noop" {
-			instructions = append(instructions, Instruction{action: "noop"})
+		if line == noopAction {
+			instructions = append(instructions, Instruction{action: noopAction})
 			continue
 		}
 
 		pair := strings.Split(line, " ")
 		if len(pair) != 2 {
-			panic(fmt.Sprintf("invalid input file, line must contain format: {action} {value}. line: %s", line))
+			log.Panicf("unable to parse instruction, invalid format: %s", line)
 		}
 
 		action := pair[0]
 		value, err := strconv.Atoi(pair[1])
 		if err != nil {
-			panic(err)
+			log.Panicf("unable to parse value: %v", err)
 		}
 
 		instructions = append(instructions, Instruction{action: action, value: value})

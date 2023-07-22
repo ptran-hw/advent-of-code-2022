@@ -1,6 +1,8 @@
 package day10
 
-import "fmt"
+import (
+	"log"
+)
 
 type Instruction struct {
 	action string
@@ -15,56 +17,90 @@ type Solver struct {
 const reportStartCycle = 20
 const reportIncrement = 40
 
-func (s *Solver) initialize() {
-	s.report = make([]int, 0)
-	s.crtScreen = make([]string, 0)
-}
+const noopAction = "noop"
+const addAction = "addx"
 
-// actions will pause for Y cycles
-// - noop takes one full cycle
-// - addx takes two full cycles
-// signal strength calculated from cycle number (increments of 40, starting at 20) * X value
 func (s *Solver) Solve() {
-	//s.updateSignalStrengthReport()
-	//fmt.Printf("Total signal strength: %d\n", totalSum(s.report))
-
-	s.updateCRTScreen()
-	printCRTScreen(s.crtScreen)
-}
-
-func (s *Solver) updateSignalStrengthReport() {
 	instructions := readSampleInstructionsFromFile()
 	//instructions := readInstructionsFromFile()
 
+	//solveSignalStrengthReport(instructions)
+	solveSpriteCRTDisplay(instructions)
+}
+
+/*
+Given instructions []Instruction,
+Process the instructions and keep track of register value X,
+Calculate the signal strengths reported at cycles 20, 40, 60, etc and sum them together
+Note: Signal strength is calculated by multiplying the register value X with cycle value
+
+Instructions have actions: noop, addx
+- noop takes one full cycle to complete
+- addx takes two full cycles to complete and increments register X by instruction value
+*/
+func solveSignalStrengthReport(instructions []Instruction) {
+	registerValues := make([]int, 0)
+
+	registerValues = appendRegisterValues(registerValues, instructions)
+	totalSignalStrength := sumSignalStrengths(registerValues)
+
+	log.Printf("Total signal strength: %d\n", totalSignalStrength)
+}
+
+/*
+Given instructions []Instruction,
+Process the instructions and keep track of register value X,
+Display the CRT image after processing all instructions
+
+The sprite is length 3, where the middle position corresponds to the register value X
+Each cycle imprints . when there is no overlap with sprite and # when there is overlap
+CRT dimensions are 40 (cols) by 6 (rows)
+*/
+func solveSpriteCRTDisplay(instructions []Instruction) {
+	crtScreen := make([]string, 0)
+
+	crtScreen = updateCRTScreen(crtScreen, instructions)
+	print(crtScreen)
+}
+
+func appendRegisterValues(registerValues []int, instructions []Instruction) []int {
 	cycleNumber := 1
-	registerValue := 1
+	currRegister := 1
 
 	for _, instruction := range instructions {
-		if instruction.action == "noop" {
-			cycleNumber = s.handleReportNoopAction(cycleNumber, registerValue)
-		} else {
-			cycleNumber, registerValue = s.handleReportAddxAction(cycleNumber, registerValue, instruction.value)
+		var increments int
+		switch instruction.action {
+		case noopAction:
+			increments = 1
+		case addAction:
+			increments = 2
+		}
+
+		for increments > 0 {
+			registerValues = append(registerValues, currRegister)
+			cycleNumber++
+			increments--
+		}
+
+		if instruction.action == addAction {
+			currRegister += instruction.value
 		}
 	}
+
+	return registerValues
 }
 
-func (s *Solver) handleReportNoopAction(cycleNumber, registerValue int) int {
-	s.maybeAddSignalStrength(cycleNumber, registerValue)
+func sumSignalStrengths(registerValues []int) int {
+	total := 0
 
-	return cycleNumber + 1
-}
-
-func (s *Solver) handleReportAddxAction(cycleNumber, registerValue, addValue int) (int, int) {
-	s.maybeAddSignalStrength(cycleNumber, registerValue)
-	s.maybeAddSignalStrength(cycleNumber + 1, registerValue)
-
-	return cycleNumber + 2, registerValue + addValue
-}
-
-func (s *Solver) maybeAddSignalStrength(cycleNumber, registerValue int) {
-	if isReportCycle(cycleNumber) {
-		s.report = append(s.report, calculateSignalStrength(cycleNumber, registerValue))
+	// cycle is 1-index
+	for cycle := 1; cycle <= len(registerValues); cycle++ {
+		if isReportCycle(cycle) {
+			total += calculateSignalStrength(cycle, registerValues[cycle - 1]) // register values is 0-index
+		}
 	}
+
+	return total
 }
 
 func isReportCycle(cycle int) bool {
@@ -75,46 +111,37 @@ func calculateSignalStrength(cycle, registerValue int) int {
 	return cycle * registerValue
 }
 
-func totalSum(nums []int) int {
-	total := 0
-	for _, value := range nums {
-		total += value
-	}
-
-	return total
-}
-
-func (s *Solver) updateCRTScreen() {
-	//instructions := readSampleInstructionsFromFile()
-	instructions := readInstructionsFromFile()
-
+func updateCRTScreen(crtScreen []string, instructions []Instruction) []string {
 	cycleNumber := 1
 	registerValue := 1
 
 	buffer := ""
 	for _, instruction := range instructions {
-		if instruction.action == "noop" {
-			cycleNumber, buffer = s.handleNoopAction(cycleNumber, registerValue, buffer)
-		} else {
-			cycleNumber, registerValue, buffer = s.handleAddxAction(cycleNumber, registerValue, instruction.value, buffer)
+		var increments int
+		switch instruction.action {
+		case noopAction:
+			increments = 1
+		case addAction:
+			increments = 2
+		}
+
+		for increments > 0 {
+			buffer = addPixel(cycleNumber, registerValue, buffer)
+			if isRowComplete(buffer) {
+				crtScreen = append(crtScreen, buffer)
+				buffer = ""
+			}
+
+			cycleNumber++
+			increments--
+		}
+
+		if instruction.action == addAction {
+			registerValue += instruction.value
 		}
 	}
-}
 
-func (s *Solver) handleNoopAction(cycleNumber, registerValue int, buffer string) (int, string) {
-	buffer = addPixel(cycleNumber, registerValue, buffer)
-	buffer = s.maybeAddCRTScreenRow(cycleNumber, buffer)
-
-	return cycleNumber + 1, buffer
-}
-
-func (s *Solver) handleAddxAction(cycleNumber, registerValue, addValue int, buffer string) (int, int, string) {
-	buffer = addPixel(cycleNumber, registerValue, buffer)
-	buffer = s.maybeAddCRTScreenRow(cycleNumber, buffer)
-	buffer = addPixel(cycleNumber + 1, registerValue, buffer)
-	buffer = s.maybeAddCRTScreenRow(cycleNumber + 1, buffer)
-
-	return cycleNumber + 2, registerValue + addValue, buffer
+	return crtScreen
 }
 
 func addPixel(cycleNumber, registerValue int, buffer string) string {
@@ -131,22 +158,13 @@ func isOverlappingSprite(cycle, registerValue int) bool {
 	return position == registerValue || position == registerValue - 1 || position == registerValue + 1
 }
 
-func (s *Solver) maybeAddCRTScreenRow(cycleNumber int, buffer string) string {
-	if isRowComplete(cycleNumber) {
-		s.crtScreen = append(s.crtScreen, buffer)
-		buffer = ""
-	}
-
-	return buffer
+func isRowComplete(buffer string) bool {
+	return len(buffer) % 40 == 0
 }
 
-func isRowComplete(cycle int) bool {
-	return cycle % 40 == 0
-}
-
-func printCRTScreen(rows []string) {
-	for _, row := range rows {
-		fmt.Printf("%v\n", row)
+func print(crtScreen []string) {
+	for _, row := range crtScreen {
+		log.Printf("%v\n", row)
 	}
 }
 
