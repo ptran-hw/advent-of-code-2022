@@ -26,9 +26,8 @@ func (s Solver) Solve() {
 	//matches := getSampleMatches()
 	matches := readMatchesFromFile()
 
-	log.Printf("Using the hand guide, total score is: %d\n", calculateTotalScoreWithHandSign(matches))
-	log.Printf("Using the match outcome guide, total score is: %d\n",
-		calculateTotalScoreWithMatchOutcome(matches))
+	log.Println("Using the hand guide, total score is:", calculateTotalScoreWithHandSign(matches))
+	log.Println("Using the match outcome guide, total score is:", calculateTotalScoreWithMatchOutcome(matches))
 }
 
 /*

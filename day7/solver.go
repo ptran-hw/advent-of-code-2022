@@ -44,7 +44,7 @@ func analyzeDirectoryCandidates(root *FileSystemObject, candidateSizeLimit int) 
 func analyzeDirectoryCandidatesForFileSystemUpdate(root *FileSystemObject, fileSystemSize int, updateSize int) {
 	currentFreeSpace := fileSystemSize - root.size
 	additionalSpaceRequired := updateSize - currentFreeSpace
-	log.Printf("In order to update file system, we need additional space: %d\n", additionalSpaceRequired)
+	log.Println("In order to update file system, we need additional space:", additionalSpaceRequired)
 
 	directory := findSmallestDirectoryCandidate(root, additionalSpaceRequired)
 	log.Printf("The best directory to delete: %s, which results in saving space: %d\n", directory.name, directory.size)

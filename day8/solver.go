@@ -24,7 +24,7 @@ A tree is visible if all trees in a straight line towards to the boundary are st
 func solveVisibleTreesFromOutsideGrid(treeHeights [][]int) {
 	visiblePositions := make(map[string]bool, 0)
 	updateVisiblePositions(treeHeights, visiblePositions)
-	log.Printf("Visible tree count: %d\n", countTotalVisibleTrees(visiblePositions))
+	log.Println("Visible tree count:", countTotalVisibleTrees(visiblePositions))
 }
 
 /*
@@ -34,7 +34,7 @@ Find the maximum scenic score in the grid
 The scenic score of a tree is the product of viewing distances (number of trees visible) in the 4 directions
 */
 func solveMaxTreeScenicScore(treeHeights [][]int) {
-	log.Printf("Max scenic score: %d\n", calculateMaxScenicScore(treeHeights))
+	log.Println("Max scenic score:", calculateMaxScenicScore(treeHeights))
 }
 
 func updateVisiblePositions(treeHeights [][]int, visiblePositions map[string]bool) {

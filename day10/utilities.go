@@ -22,7 +22,7 @@ func readSampleInstructionsFromFile() []Instruction {
 func readInstructionsFromFileHelper(filePath string) []Instruction {
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Panicf("unable to read instructions file:", err)
+		log.Panicf("unable to read instructions file: %v", err)
 	}
 	defer file.Close()
 

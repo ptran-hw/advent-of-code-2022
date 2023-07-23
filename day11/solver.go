@@ -1,9 +1,10 @@
 package day11
 
-import "fmt"
+import (
+	"log"
+)
 
 type Solver struct {
-	monkeyInspectionCount []int
 }
 
 type Monkey struct {
@@ -13,26 +14,44 @@ type Monkey struct {
 	redirectDivisibleValue int
 }
 
-const roundsForPart1 int = 20
-const roundsForPart2 int = 10000
+const simpleRounds int = 20
+const complexRounds int = 10000
 
-func (s *Solver) initialize(length int) {
-	s.monkeyInspectionCount = make([]int, length)
+func (s Solver) Solve() {
+	monkeys := getSampleMonkeys()
+	//monkeys := readMonkeysFromFile()
+
+	solveSimpleMonkeyBusinessLevel(monkeys)
+	solveComplexMonkeyBusinessLevel(monkeys)
 }
 
-func (s *Solver) Solve() {
-	//monkeys := getSampleMonkeys()
-	monkeys := readMonkeysFromFile()
-	s.initialize(len(monkeys))
-	reduceFactor := getReduceFactor(monkeys)
-
-	//for i := 1; i <= roundsForPart1; i++ {
-	for i := 1; i <= roundsForPart2; i++ {
-		s.processRound(monkeys, reduceFactor)
+func solveSimpleMonkeyBusinessLevel(monkeys []*Monkey) {
+	reductionFunc := func(worryValue int) int {
+		return worryValue / 3
 	}
 
-	fmt.Printf("monkey inspection count: %v\n", s.monkeyInspectionCount)
-	fmt.Printf("monkey business score: %d\n", calculateMonkeyBusinessScore(s.monkeyInspectionCount))
+	monkeyInspectionCounter := make([]int, len(monkeys))
+	for i := 1; i <= simpleRounds; i++ {
+		processRound(monkeys, reductionFunc, monkeyInspectionCounter)
+	}
+
+	log.Println("(simple) monkey inspection count:", monkeyInspectionCounter)
+	log.Println("(simple) monkey business score:", calculateMonkeyBusinessScore(monkeyInspectionCounter))
+}
+
+func solveComplexMonkeyBusinessLevel(monkeys []*Monkey) {
+	reduceFactor := getReduceFactor(monkeys)
+	reductionFunc := func(worryValue int) int {
+		return worryValue % reduceFactor
+	}
+
+	monkeyInspectionCounter := make([]int, len(monkeys))
+	for i := 1; i <= complexRounds; i++ {
+		processRound(monkeys, reductionFunc, monkeyInspectionCounter)
+	}
+
+	log.Println("(complex) monkey inspection count:", monkeyInspectionCounter)
+	log.Println("(complex) monkey business score:", calculateMonkeyBusinessScore(monkeyInspectionCounter))
 }
 
 func getReduceFactor(monkeys []*Monkey) int {
@@ -58,30 +77,27 @@ func calculateCommonMultiple(values []int) int {
 	return result
 }
 
-func (s *Solver) processRound(monkeys []*Monkey, reduceFactor int) {
-	for index := 0; index < len(monkeys); index++ {
-		currMonkey := monkeys[index]
+func processRound(monkeys []*Monkey, reductionFunc func(int) int, monkeyInspectionCount []int) {
+	for index, currMonkey := range monkeys {
 		for _, level := range currMonkey.worryLevels {
-			nextWorryLevel := calculateNextWorryLevel(level, *currMonkey, reduceFactor)
-			nextMonkeyIndex := calculateNextMonkey(nextWorryLevel, *currMonkey)
+			nextWorryLevel := calculateNextWorryLevel(level, currMonkey.operationFunc, reductionFunc)
+			nextMonkeyIndex := calculateNextMonkey(nextWorryLevel, currMonkey.redirectTestFunc)
 
 			nextMonkey := monkeys[nextMonkeyIndex]
 			nextMonkey.worryLevels = append(nextMonkey.worryLevels, nextWorryLevel)
 		}
 
-		s.monkeyInspectionCount[index] += len(currMonkey.worryLevels)
+		monkeyInspectionCount[index] += len(currMonkey.worryLevels)
 		currMonkey.worryLevels = make([]int, 0)
 	}
 }
 
-func calculateNextWorryLevel(worryLevel int, monkey Monkey, reduceFactor int) int {
-	//return monkey.operationFunc(worryLevel) / 3
-	// part 2 does not reduce worry level anymore
-	return monkey.operationFunc(worryLevel) % reduceFactor
+func calculateNextWorryLevel(worryLevel int, operationFunc, reductionFunc func(int) int) int {
+	return reductionFunc(operationFunc(worryLevel))
 }
 
-func calculateNextMonkey(nextWorryLevel int, monkey Monkey) int {
-	return monkey.redirectTestFunc(nextWorryLevel)
+func calculateNextMonkey(nextWorryLevel int, redirectTestFunc func(int) int) int {
+	return redirectTestFunc(nextWorryLevel)
 }
 
 func calculateMonkeyBusinessScore(inspectionCounter []int) int64 {

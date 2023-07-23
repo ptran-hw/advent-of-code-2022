@@ -45,7 +45,7 @@ then the tail know will move diagonally to keep up
 func solveSimpleRopeBridge(instructions []Instruction) {
 	visitedTailPositions := make(map[string]bool)
 	simulateMovements(instructions, simpleRopeLength, visitedTailPositions)
-	log.Printf("Simple rope bridge: number of visited positions: %d\n", countVisitedPositions(visitedTailPositions))
+	log.Println("Simple rope bridge: number of visited positions:", countVisitedPositions(visitedTailPositions))
 }
 
 /*
@@ -57,7 +57,7 @@ The rope is length 10, and non-head knots follows the preceding knot using the s
 func solveComplexRopeBridge(instructions []Instruction) {
 	visitedTailPositions := make(map[string]bool)
 	simulateMovements(instructions, complexRopeLength, visitedTailPositions)
-	log.Printf("Complex rope bridge: number of visited positions: %d\n", countVisitedPositions(visitedTailPositions))
+	log.Println("Complex rope bridge: number of visited positions:", countVisitedPositions(visitedTailPositions))
 }
 
 func simulateMovements(instructions []Instruction, knotCount int, visitedTailPositions map[string]bool) {

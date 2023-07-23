@@ -20,7 +20,7 @@ const reportIncrement = 40
 const noopAction = "noop"
 const addAction = "addx"
 
-func (s *Solver) Solve() {
+func (s Solver) Solve() {
 	instructions := readSampleInstructionsFromFile()
 	//instructions := readInstructionsFromFile()
 
@@ -44,7 +44,7 @@ func solveSignalStrengthReport(instructions []Instruction) {
 	registerValues = appendRegisterValues(registerValues, instructions)
 	totalSignalStrength := sumSignalStrengths(registerValues)
 
-	log.Printf("Total signal strength: %d\n", totalSignalStrength)
+	log.Println("Total signal strength:", totalSignalStrength)
 }
 
 /*
@@ -164,7 +164,7 @@ func isRowComplete(buffer string) bool {
 
 func print(crtScreen []string) {
 	for _, row := range crtScreen {
-		log.Printf("%v\n", row)
+		log.Println(row)
 	}
 }
 

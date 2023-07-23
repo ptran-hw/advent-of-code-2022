@@ -2,7 +2,7 @@ package day11
 
 import (
 	"bufio"
-	"fmt"
+	"log"
 	"math"
 	"os"
 	"regexp"
@@ -21,15 +21,16 @@ var testFuncFalsePattern = regexp.MustCompile("If false: throw to monkey (.+)$")
 
 func scanNextLine(scanner *bufio.Scanner) {
 	if !scanner.Scan() {
-		panic("invalid monkey data")
+		log.Panic("unable to read monkey data; file unexpectedly ended")
 	}
 }
 
 func readMonkeysFromFile() []*Monkey {
 	file, err := os.Open(monkeyDataFile)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to read monkey data file: %v", err)
 	}
+	defer file.Close()
 
 	monkeys := make([]*Monkey, 0)
 	scanner := bufio.NewScanner(file)
@@ -61,21 +62,21 @@ func getWorryLevels(scanner *bufio.Scanner) []int {
 	line := scanner.Text()
 
 	if !worryLevelsPattern.MatchString(line) {
-		panic(fmt.Sprintf("Expected starting items line, but instead got: %s", line))
+		log.Panicf("unexpected worry levels: %s", line)
 	}
 
 	match := worryLevelsPattern.FindStringSubmatch(line)[1]
-	stressLevels := make([]int, 0)
+	worryLevels := make([]int, 0)
 	for _, token := range strings.Split(match, ", ") {
-		value, err := strconv.Atoi(token)
+		worryValue, err := strconv.Atoi(token)
 		if err != nil {
-			panic(err)
+			log.Panicf("unable to parse worry value: %v", err)
 		}
 
-		stressLevels = append(stressLevels, value)
+		worryLevels = append(worryLevels, worryValue)
 	}
 
-	return stressLevels
+	return worryLevels
 }
 
 func getOperationFunc(scanner *bufio.Scanner) func(int) int {
@@ -83,7 +84,7 @@ func getOperationFunc(scanner *bufio.Scanner) func(int) int {
 	line := scanner.Text()
 
 	if !operationFuncPattern.MatchString(line) {
-		panic(fmt.Sprintf("Expected operation function line, but instead got: %s", line))
+		log.Panicf("unexpected operation function: %s", line)
 	}
 
 	operator := operationFuncPattern.FindStringSubmatch(line)[1]
@@ -107,7 +108,7 @@ func getOperationFunc(scanner *bufio.Scanner) func(int) int {
 
 	argumentValue, err := strconv.Atoi(argument)
 	if err != nil {
-		panic(err)
+		log.Panicf("unable to parse argument value: %v", err)
 	}
 
 	return getOperatorFuncClosure(operator, argumentValue)
@@ -136,10 +137,11 @@ func getOperatorFuncClosure(operator string, value int) func(int) int {
 }
 
 func getRedirectTestFunc(scanner *bufio.Scanner) (func(int) int, int) {
-	divisibleValue := getRedirectTestDivisibleValue(scanner)
-	truePathMonkey := getRedirectTestTruePathMonkey(scanner)
-	falsePathMonkey := getRedirectTestFalsePathMonkey(scanner)
+	divisibleValue := getRedirectTestValue(scanner, testFuncDivisiblePattern)
+	truePathMonkey := getRedirectTestValue(scanner, testFuncTruePattern)
+	falsePathMonkey := getRedirectTestValue(scanner, testFuncFalsePattern)
 
+	// closure func
 	return func(x int) int {
 		if x % divisibleValue == 0 {
 			return truePathMonkey
@@ -149,52 +151,18 @@ func getRedirectTestFunc(scanner *bufio.Scanner) (func(int) int, int) {
 	}, divisibleValue
 }
 
-func getRedirectTestDivisibleValue(scanner *bufio.Scanner) int {
+func getRedirectTestValue(scanner *bufio.Scanner, pattern *regexp.Regexp) int {
 	scanNextLine(scanner)
 	line := scanner.Text()
 
-	if !testFuncDivisiblePattern.MatchString(line) {
-		panic(fmt.Sprintf("Expected Test function divisible line, but instead got: %s", line))
+	if !pattern.MatchString(line) {
+		log.Panicf("unexpected redirection path: %s", line)
 	}
 
-	divisible := testFuncDivisiblePattern.FindStringSubmatch(line)[1]
-	divisibleValue, err := strconv.Atoi(divisible)
-	if err != nil {
-		panic(err)
-	}
-
-	return divisibleValue
-}
-
-func getRedirectTestTruePathMonkey(scanner *bufio.Scanner) int {
-	scanNextLine(scanner)
-	line := scanner.Text()
-
-	if !testFuncTruePattern.MatchString(line) {
-		panic(fmt.Sprintf("Expected Test function true line, but instead got: %s", line))
-	}
-
-	monkey := testFuncTruePattern.FindStringSubmatch(line)[1]
+	monkey := pattern.FindStringSubmatch(line)[1]
 	monkeyValue, err := strconv.Atoi(monkey)
 	if err != nil {
-		panic(err)
-	}
-
-	return monkeyValue
-}
-
-func getRedirectTestFalsePathMonkey(scanner *bufio.Scanner) int {
-	scanNextLine(scanner)
-	line := scanner.Text()
-
-	if !testFuncFalsePattern.MatchString(line) {
-		panic(fmt.Sprintf("Expected Test function false line, but instead got: %s", line))
-	}
-
-	monkey := testFuncFalsePattern.FindStringSubmatch(line)[1]
-	monkeyValue, err := strconv.Atoi(monkey)
-	if err != nil {
-		panic(err)
+		log.Panicf("unable to parse monkey value: %v", err)
 	}
 
 	return monkeyValue

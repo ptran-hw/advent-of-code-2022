@@ -18,8 +18,8 @@ func (s Solver) Solve() {
 	//teams := getSampleTeams()
 	teams := readTeamsFromFile()
 
-	log.Printf("total priority for rucksacks: %d\n",calculateTotalPriority(rucksacks))
-	log.Printf("total priority for teams: %d\n",calculateTotalPriority(teams))
+	log.Println("total priority for rucksacks:", calculateTotalPriority(rucksacks))
+	log.Println("total priority for teams:", calculateTotalPriority(teams))
 }
 
 /*
